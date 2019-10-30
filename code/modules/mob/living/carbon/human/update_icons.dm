@@ -137,9 +137,11 @@ Please contact me on #coderbus IRC. ~Carn x
 #define HO_HANDCUFF_LAYER   23
 #define HO_L_HAND_LAYER     24
 #define HO_R_HAND_LAYER     25
-#define HO_FIRE_LAYER       26 //If you're on fire
-#define SHADOW_LAYER        27
-#define TOTAL_LAYERS        27
+#define WING_LAYER			26		
+#define TAIL_LAYER_ALT		27
+#define HO_FIRE_LAYER       28 //If you're on fire
+#define SHADOW_LAYER		29
+#define TOTAL_LAYERS        29	// KEEP THIS UPDATED
 //////////////////////////////////
 
 /mob/living/carbon/human
@@ -711,8 +713,26 @@ var/global/list/damage_icon_parts = list()
 
 /mob/living/carbon/human/proc/update_tail_showing(var/update_icons=1)
 	overlays_standing[HO_TAIL_LAYER] = null
-
+	// MITHRAstation Edit - START
+	var/used_tail_layer = tail_alt ? TAIL_LAYER_ALT : HO_TAIL_LAYER
 	var/species_tail = species.get_tail(src)
+	var/image/vr_tail_image = get_tail_image()
+
+	if(vr_tail_image)
+		vr_tail_image.layer = used_tail_layer
+		overlays_standing[HO_TAIL_LAYER] = vr_tail_image
+		animate_tail_reset(0)
+		if(update_icons)
+			queue_icon_update()
+
+	else if(species_tail && !(wear_suit && wear_suit.flags_inv & HIDETAIL))
+		var/icon/tail_s = get_tail_icon()
+		overlays_standing[HO_TAIL_LAYER] = image(tail_s, icon_state = "[species_tail]_s")
+		animate_tail_reset(0)
+		if(update_icons)
+			queue_icon_update()
+
+// MITHRAStation Edit - END						 										   
 
 	if(species_tail && !(wear_suit && wear_suit.flags_inv & HIDETAIL))
 		var/icon/tail_s = get_tail_icon()
@@ -879,5 +899,8 @@ var/global/list/damage_icon_parts = list()
 #undef HO_HANDCUFF_LAYER
 #undef HO_L_HAND_LAYER
 #undef HO_R_HAND_LAYER
+#undef WING_LAYER	
+#undef TAIL_LAYER_ALT
 #undef HO_FIRE_LAYER
+#undef SHADOW_LAYER
 #undef TOTAL_LAYERS
